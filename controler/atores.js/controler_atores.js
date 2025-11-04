@@ -1,107 +1,91 @@
-/********************************************************************
- * Objetivo do arquivo respomsavel por manipulação de dados entre o app e o model
- *           (validações, tratamento de dados, tratamento de erros)
- * data: 07/10/2025
- * autor : Davi de Almeida Santos
- * Versão 1.0
- *************************************************************************/
+/******************************************************************************************************************************************************************************************************************************************************** 
+* Objetivo : Aquivo responsavel pela realização do CRUD de atoress 
+* Data : 021/10/2025
+* Autor : Davi de Almeida Santos 
+* Versão : 1.0
+**************************************************************************************************************************************************************************************************************/
 
-//import do arquivo DAO para manipular o banco de dados
-
-const filmeDAO = require('../../model/DAO/filme.js')
+const atoresDAO = require('../../model/DAO/atores.js')
+const { buscarFilmeId } = require('../filme/controle_filme.js')
 
 
 
+const MESSAGE_DEFAULT = require('../modulo/config_message.js')
 
 
-const MESSAGE_DEFAULT = require('../../controler/modulo/config_message.js')
+const listarAtores = async function () {
 
+let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
+try{
+    let result = await atoresDAO.getSelecAllAtores()
 
-const listarFilmes = async function () {
-
-
-    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-
-    try {
-        let result = await filmeDAO.getselectAllFilms()
-       
-
-        if (result) {
-            if (result.length > 0) {
-                MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
-                MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                MESSAGE.HEADER.response.filmes = result
-
-
-                return MESSAGE.HEADER
-            } else {
-                //está ENY arrumar depois 
-                return MESSAGE.DEFAULT
-
-
-            }
-        } else {
-            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
+    if (result){console.log(result)
+        if(result.length > 0){
+            MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
+            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
+            MESSAGE.HEADER.response.atoress = result
+            return MESSAGE.HEADER
+        } else{
+            return MESSAGE.DEFAULT
         }
-    } catch (error) {
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER
+    }else{
+        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL
     }
-
+} catch (error){
+    return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER
 }
-const buscarFilmeId = async function (id) {
+    
+}
+
+const listarAtoresById = async function (id) {
+
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-    try {
-        if (id != '' || id != null || id != undefined || isNaN(id) || id > 0) {
-            let result = await filmeDAO.getSelectAllByIdFilms(parseInt(id))
-            if (result) {
+    try{
+        if(id !=''  || id != null || id != undefined || isNaN(id) || id > 0 ){
+            let result = await atoresDAO.getSelectAllByAtores(parseInt(id))
+            if(result){
                 if (result.length > 0) {
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
                     MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-                    MESSAGE.HEADER.response.filmes = result
+                    MESSAGE.HEADER.response.atores = result
 
                     return MESSAGE.HEADER
-                } else {
-                    //está ENY arrumar depois 
+                } else{
                     return MESSAGE.ERROR_NOT_FOUND
                 }
-            } else {
+            }else{
                 return MESSAGE_INTERNAL_SERVER_MODEL
             }
-        } else {
+        }else{
             return MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "atributo [id] invalido"
-
         }
     } catch (error) {
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER
-    }
+    } 
+    
 }
-
-
-
-
-
-const inserirFilme = async function (filme, contentType) {
+const inserirAtores = async function (atores, contentType) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT));
   
     try {
       if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
         // chama a função de validação dos dados de cadastro
-        let validarDados = await validarDadosFilme(filme);
+        let validarDados = await validarDadosAtores(atores);
   
         if (!validarDados) {
-          let result = await filmeDAO.setInsertFilms(filme);
+          let result = await filmeDAO.setInsertFilms(atores);
   
           if (result) {
-            let lastIdFilme = await filmeDAO.getSelectLastID()
+            let lastIdAtores = await atoresDAO.getSelecAllAtores()
   
-            if (lastIdFilme) {
-              filme.id = lastIdFilme;
+            if (lastIdAtores) {
+              atores.id = lastIdAtores;
               MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status;
               MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code;
               MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message;
-              MESSAGE.HEADER.response = filme;
+              MESSAGE.HEADER.response = atores;
   
               return MESSAGE.HEADER // 200
             } else {
@@ -122,7 +106,7 @@ const inserirFilme = async function (filme, contentType) {
   }
 
 
-const atualizarFilme = async function (filme, id, contentType) {
+const atualizarAtores = async function (atores, id, contentType) {
 
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
@@ -131,23 +115,23 @@ const atualizarFilme = async function (filme, id, contentType) {
 
         if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
             //chama a função de validação dos adados de cadastro
-            let validarDados = await validarDadosFilme(filme)
+            let validarDados = await validarDadosAtores(atores)
             if (!validarDados) {
 
-                let validarId = await buscarFilmeId(id)
+                let validarId = await (id)
                 if (validarId.status_code == 200) {
 
-                    filme.id = parseInt(id)
+                    atores.id = parseInt(id)
 
 
 
-                    let result = await filmeDAO.setUpdateFilme(filme)
+                    let result = await atoresDAO.setUpdateAtores(atores)
              
                     if (result) { 
                         MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATE_ITEM.status
                         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATE_ITEM.status_code
                         MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATE_ITEM.message
-                        MESSAGE.HEADER.response = filme
+                        MESSAGE.HEADER.response = atores
                         return MESSAGE.HEADER
                     } else {
                         return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
@@ -174,14 +158,14 @@ const atualizarFilme = async function (filme, id, contentType) {
 
 }
 
-const excluirFilme = async function (id) {
+const excluirAtores = async function (id) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
-    let validarId = await buscarFilmeId(id)
+    let validarId = await listarAtores(id)
 
     if (validarId.status_code == 200) {
         try {
-            let result = await filmeDAO.deleteUpdateFilme(id)
+            let result = await atoresDAO.deleteUpdateAtores(id)
 
             if (result) { 
                 MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETE.status
@@ -203,49 +187,48 @@ const excluirFilme = async function (id) {
 
 
 
-const validarDadosFilme = async function (filme) {
+const validarDadosAtores = async function (atores) {
 
 
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
 
 
-    if (filme.nome == '' || filme.nome == null || filme.nome == undefined || filme.nome.length > 100) {
+    if (atores.nome == '' || atores.nome == null || atores.nome == undefined || atores.nome.length > 100) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [NOME] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (filme.sinopse == undefined) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [SINOPSE] invalido"
+    } else if (atores.nacionalidade == undefined) {
+        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [NACIONALIDADE] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (filme.data_lancamento == undefined || filme.data_lancamento.length != 10 || filme.data_lancamento == '') {
+    } else if (atores.data_nascimento == undefined || atores.data_nascimento.length != 10 || atores.data_nascimento == '') {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DATA LANÇAMENTO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (filme.duracao == '' || filme.duracao == null || filme.duracao == undefined || filme.duracao.length > 8) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DURAÇÃO] invalido"
+    } else if (atores.data_obito == '' || atores.data_obito == null || atores.data_obito == undefined || atores.data_obito.length > 50) {
+        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DATA_OBITO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (filme.orcamneto == '' || filme.orcamento == null || filme.orcamento == undefined || filme.orcamento.length > 16 || typeof (filme.orcamento) == 'number') {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo [ORCAMENTO] invalido"
+    } else if (atores.premiacoes == ''  || atores.premiacoes == undefined || atores.premiacoes.length > 100) {
+        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo [PREMIAÇÔES] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (filme.trailer == undefined || filme.trailer.length > 100) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [TRAILER] invalido"
+    } else if (atores.foto == undefined || atores.foto.length > 100) {
+        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [FOTO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (filme.capa == '' || filme.capa == null || filme.capa == undefined || filme.capa.length > 256) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [CAPA] invalido"
-        return MESSAGE.ERROR_REQUIRID_FILDS
-    } else {
-    }
+
+}
 }
 
 
+
 module.exports = {
-    listarFilmes,
-    buscarFilmeId,
-    inserirFilme,
-    atualizarFilme,
-    excluirFilme
+    listarAtores,
+    listarAtoresById,
+    validarDadosAtores,
+    inserirAtores,
+    atualizarAtores,
+    excluirAtores
 }
