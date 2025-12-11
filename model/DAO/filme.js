@@ -40,167 +40,130 @@
 
 
 
-//importa a biblioteca do prisma/client
-const {PrismaClient} = require('../../generated/prisma')
- 
+const { PrismaClient } = require('@prisma/client');
 
-//cria um objeto do prisma client para manipular
-const prisma = new PrismaClient()
-
+const prisma = new PrismaClient();
 
 // Torna todos os filmes do banco de dados
 const getselectAllFilms = async function(){
     try{
+        let sql = 'select * from tbl_filme order by id desc';
 
-  let sql = 'select * from tb_genero order by id desc'
+        let result = await prisma.$queryRawUnsafe(sql);
 
-  let result = await prisma.$queryRawUnsafe(sql)
-  
+        if(Array.isArray(result))
+            return result;
+        else
+            return;
 
-  // Validação para identificar se retornou uma arry (vazio ou com dados)
-  if(Array.isArray(result))
-    
-    return result
-else
-  return 
-
-
-
-}catch (error){
-
-    return false
+    }catch (error){  console.log(error)
+        return false;
+    }
 }
-
-
-
-}
-
-
 
 // Torna todos os IDs filmes do banco de dados 
 const getSelectAllByIdFilms = async function(id){
   try{
+    let sql = `select * from tbl_filme where id = ${id}`;
 
-    let sql = `select * from tb_filme where id=${id}`
-  
-    let result = await prisma.$queryRawUnsafe(sql)
-  
-    // Validação para identificar se retornou uma arry (vazio ou com dados)
+    let result = await prisma.$queryRawUnsafe(sql);
+
     if(Array.isArray(result))
-      return result
-  else
-    return false
-  
-  }catch (error){
-     // console.log(error)
-      return false
-  }
+      return result;
+    else
+      return false;
 
+  }catch (error){console.log(error)
+      return false;
+  }
 }
 
-const getSelectLastID = async function (id) {
+const getSelectLastID = async function () {
   try{
+    let sql = `select id from tbl_filme order by id desc limit 1`;
 
-    let sql = `select id from tb_filme order by id desc limit 1`
-  
-    let result = await prisma.$queryRawUnsafe(sql)
-  
-    // Validação para identificar se retornou uma arry (vazio ou com dados)
-    if(Array.isArray(result))
-      return Number(result[0].id)
-  else
-    return false
-  
-  }catch (error){
-     // console.log(error)
-      return false
-  }
+let result = await prisma.$queryRawUnsafe(sql)
+        if (result) {
+            return result
+        } else {
+            return false
+        }
+    } catch (error) {
+        return false
+    }
 }
-
 // insere um filme no banco de dados  
 const setInsertFilms = async function(filme){
   try{
-    let sql = `INSERT INTO tb_filme (
-    nome,
-    sinopse,
-    data_lancamento,
-    duracao,
-    orcamento,
-    trailer,
-    capa
-) VALUES( '${filme.nome}',
-          '${filme.sinopse}',
-          '${filme.data_lancamento}',
-          '${filme.duracao}',
-          '${filme.orcamento}',
-          '${filme.trailer}',
-          '${filme.capa}');`
+    let sql = `INSERT INTO tbl_filme (
+      nome,
+      sinopse,
+      data_lancamento,
+      duracao,
+      orcamento,
+      trailer,
+      capa
+    ) VALUES( '${filme.nome}',
+              '${filme.sinopse}',
+              '${filme.data_lancamento}',
+              '${filme.duracao}',
+              '${filme.orcamento}',
+              '${filme.trailer}',
+              '${filme.capa}');`;
 
-   let  result = await prisma.$executeRawUnsafe(sql)
+    let result = await prisma.$executeRawUnsafe(sql);
 
-   if(result)
-    return true 
-  else
-   return false
+    if(result)
+      return true;
+    else
+      return false;
+
   }catch (error){
-    return false 
+    return false;
   }
-
 }
-//atualiza um filme existente do banco de dados filtrado por um  id
+
+// atualiza um filme existente do banco de dados filtrado por um id
 const setUpdateFilme = async function (filme) {
   try{
-    let sql = `update tb_filme set
-    nome                = '${filme.nome}',
-    sinopse             = '${filme.sinopse}',
-    data_lancamento     = '${filme.data_lancamento}',
-    duracao             = '${filme.duracao}',
-    orcamento           = '${filme.orcamento}',
-    trailer             = '${filme.trailer}',
-    capa                = '${filme.capa}'
-   where id = ${filme.id}`
+    let sql = `update tbl_filme set
+      nome                = '${filme.nome}',
+      sinopse             = '${filme.sinopse}',
+      data_lancamento     = '${filme.data_lancamento}',
+      duracao             = '${filme.duracao}',
+      orcamento           = '${filme.orcamento}',
+      trailer             = '${filme.trailer}',
+      capa                = '${filme.capa}'
+      where id = ${filme.id}`;
 
-   let = result = await prisma.$executeRawUnsafe(sql)
+    let result = await prisma.$executeRawUnsafe(sql);
 
-   if(result)
-    return true 
-  else
-   return false
+    if(result)
+      return true;
+    else
+      return false;
+
   }catch (error){
-    
-    return false 
+    return false;
   }
-
-    
 }
 
 // deleta um filme existente no banco de dados por um id
 const deleteUpdateFilme = async function (id) {
   try{
-    let sql = `delete from tb_filme where id = ${id} `
+    let sql = `delete from tbl_filme where id = ${id}`;
 
-    let result = await prisma.$executeRawUnsafe(sql)
+    let result = await prisma.$executeRawUnsafe(sql);
 
     if(result)
-      return true 
+      return true;
     else
-     return false
-    }catch (error){
-      
-      return false 
-    }
-  
+      return false;
 
-
+  }catch (error){
+    return false;
   }
-
-
-
-
-   
-    
-
-
+}
 
 module.exports = { 
     getselectAllFilms,
@@ -209,5 +172,4 @@ module.exports = {
     setInsertFilms,
     setUpdateFilme,
     deleteUpdateFilme
-
-}
+};

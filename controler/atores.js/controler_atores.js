@@ -6,7 +6,7 @@
 **************************************************************************************************************************************************************************************************************/
 
 const atoresDAO = require('../../model/DAO/atores.js')
-const { buscarFilmeId } = require('../filme/controle_filme.js')
+
 
 
 
@@ -20,7 +20,7 @@ let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 try{
     let result = await atoresDAO.getSelecAllAtores()
 
-    if (result){console.log(result)
+    if (result){
         if(result.length > 0){
             MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
             MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
@@ -44,7 +44,7 @@ const listarAtoresById = async function (id) {
 
     try{
         if(id !=''  || id != null || id != undefined || isNaN(id) || id > 0 ){
-            let result = await atoresDAO.getSelectAllByAtores(parseInt(id))
+            let result = await atoresDAO.getSelectAllByIdAtores(id)
             if(result){
                 if (result.length > 0) {
                     MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
@@ -56,56 +56,63 @@ const listarAtoresById = async function (id) {
                     return MESSAGE.ERROR_NOT_FOUND
                 }
             }else{
-                return MESSAGE_INTERNAL_SERVER_MODEL
+                return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
         }else{
             return MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "atributo [id] invalido"
         }
-    } catch (error) {
+    } catch (error) { console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER
     } 
     
 }
 const inserirAtores = async function (atores, contentType) {
-    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT));
-  
-    try {
-      if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
-        // chama a função de validação dos dados de cadastro
-        let validarDados = await validarDadosAtores(atores);
-  
-        if (!validarDados) {
-          let result = await filmeDAO.setInsertFilms(atores);
-  
-          if (result) {
-            let lastIdAtores = await atoresDAO.getSelecAllAtores()
-  
-            if (lastIdAtores) {
-              atores.id = lastIdAtores;
-              MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status;
-              MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code;
-              MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message;
-              MESSAGE.HEADER.response = atores;
-  
-              return MESSAGE.HEADER // 200
-            } else {
-              return MESSAGE.ERROR_INTERNAL_SERVER_MODEL; // 500
-            }
-          } else {
-            return validarDados; // 400
-          }
-        } else {
-          return validarDados; // 400 (caso a validação falhe)
-        }
-      } else {
-        return MESSAGE.ERROR_CONTENT_TYPE; // 415 ou similar
-      }
-    } catch (error) {
-      return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER; // 500
+  let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT));
+
+  try {
+
+    // Valida Content-Type
+    if (String(contentType).toUpperCase() != 'APPLICATION/JSON') {
+      return MESSAGE.ERROR_CONTENT_TYPE; // 415
     }
+
+    // Validação dos dados
+    let validarDados = await validarDadosAtores(atores);
+
+    // Se der erro na validação → retornar erro 400
+    if (validarDados) {
+      return validarDados; 
+    }
+
+    // INSERT no banco
+    let result = await atoresDAO.setInsertAtores(atores);
+
+    if (!result) {
+      return MESSAGE.ERROR_INTERNAL_SERVER_MODEL; // 500
+    }
+
+    // Busca o último ID criado
+    let lastIdAtores = await atoresDAO.getSelectLastIDatores();
+
+    if (!lastIdAtores) {
+      return MESSAGE.ERROR_INTERNAL_SERVER_MODEL; // 500
+    }
+
+    // Monta resposta de sucesso
+    atores.id = lastIdAtores;
+
+    MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status;
+    MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_CREATED_ITEM.status_code;
+    MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message;
+    MESSAGE.HEADER.response = atores;
+
+    return MESSAGE.HEADER;
+
+  } catch (error) {
+ 
+    return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER; // 500
   }
-
-
+}
 const atualizarAtores = async function (atores, id, contentType) {
 
 
@@ -118,7 +125,7 @@ const atualizarAtores = async function (atores, id, contentType) {
             let validarDados = await validarDadosAtores(atores)
             if (!validarDados) {
 
-                let validarId = await (id)
+                let validarId = await listarAtoresById(id)
                 if (validarId.status_code == 200) {
 
                     atores.id = parseInt(id)
@@ -153,8 +160,6 @@ const atualizarAtores = async function (atores, id, contentType) {
         console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER //500
     }
-
-
 
 }
 
@@ -198,21 +203,14 @@ const validarDadosAtores = async function (atores) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [NOME] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (atores.nacionalidade == undefined) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [NACIONALIDADE] invalido"
-        return MESSAGE.ERROR_REQUIRID_FILDS
-
     } else if (atores.data_nascimento == undefined || atores.data_nascimento.length != 10 || atores.data_nascimento == '') {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DATA LANÇAMENTO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (atores.data_obito == '' || atores.data_obito == null || atores.data_obito == undefined || atores.data_obito.length > 50) {
+    } else if (atores.data_falecimento == '' || atores.data_falecimento == null || atores.data_falecimento == undefined ) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DATA_OBITO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (atores.premiacoes == ''  || atores.premiacoes == undefined || atores.premiacoes.length > 100) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo [PREMIAÇÔES] invalido"
-        return MESSAGE.ERROR_REQUIRID_FILDS
 
     } else if (atores.foto == undefined || atores.foto.length > 100) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [FOTO] invalido"

@@ -40,15 +40,10 @@
 
 
 
-//importa a biblioteca do prisma/client
-const {PrismaClient} = require('../../generated/prisma')
- 
+const { PrismaClient } = require('@prisma/client');
 
-//cria um objeto do prisma client para manipular
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-
-// Torna todos os filmes do banco de dados
 const getselectAllDiretores = async function(){
     try{
 
@@ -78,7 +73,7 @@ else
 const getSelectAllByIdDiretores = async function (id) {
 
     try{
-      let sql = `select * from tb_diretores where id_diretor=${id}`
+      let sql = `select * from tbl_diretor where id_diretor=${id}`
   
       let result = await prisma.$queryRawUnsafe(sql)
   
@@ -97,7 +92,7 @@ const getSelectAllByIdDiretores = async function (id) {
 const getSelectLastIDdiretores = async function (id) {
   try{
 
-    let sql = `select id from tb_diretores order by id_diretor desc limit 1`
+    let sql = `select id from tbl_diretor order by id_diretor desc limit 1`
   
     let result = await prisma.$queryRawUnsafe(sql)
   
@@ -116,15 +111,24 @@ const getSelectLastIDdiretores = async function (id) {
 // insere um diretores no banco de dados  
 const setInsertDiretores = async function(diretores){
   try{
-    let sql = `UPDATE tb_diretores set
-    nome = '${diretores.nome}',
-    nacionalidade = '${diretores.nacionalidade}',
-    data_nascimento = '${diretores.data_nascimento}',
-    data_obito = '${diretores.data_obito}',
-    premiacoes = '${diretores.premiacoes}',
-    foto = '${diretores.foto}'
-    where id = ${diretores.id}`
-
+    const sql = `
+  INSERT INTO tbl_diretor (
+    nome,
+    data_nascimento,
+    data_falecimento,
+    is_ativo,
+    biografia,
+    foto
+  ) VALUES (
+    '${diretores.nome}',
+    '${diretores.data_nascimento}',
+    ${diretores.data_falecimento ? `'${diretores.data_falecimento}'` : null},
+    ${diretores.is_ativo},
+    '${diretores.biografia}',
+    '${diretores.foto}'
+  );
+`
+  
 
    let  result = await prisma.$executeRawUnsafe(sql)
 
@@ -138,15 +142,14 @@ const setInsertDiretores = async function(diretores){
 }
 const setUpdateDiretores = async function (diretores) {
     try {
-      let sql = `UPDATE tb_diretores set
-        nome = '${diretores.nome}',
-        nacionalidade = '${diretores.nacionalidade}',
-        data_nascimento = '${diretores.data_nascimento}',
-        data_obito = '${diretores.data_obito}',
-        premiacoes = '${diretores.premiacoes}',
-        foto = '${diretores.foto}'
-        where id_diretor = ${diretores.id}`
-  
+        let sql = `UPDATE tbl_ator SET
+    nome = '${diretores.nome}',
+    data_nascimento = '${diretores.data_nascimento}',
+    data_falecimento = '${diretores.data_falecimento}',
+    biografia = '${diretores.biografia}',
+    is_ativo = ${diretores.is_ativo},
+    foto = '${diretores.foto}'
+WHERE id_ator = ${diretores.id};`
       let result = await prisma.$executeRawUnsafe(sql)
   
       if (result)
@@ -162,7 +165,7 @@ const setUpdateDiretores = async function (diretores) {
 
   const deleteUpdateDiretores = async function (id) {
     try{
-      let sql = `delete from tb_diretores where id_diretor = ${id} `
+      let sql = `delete from tbl_diretor where id_diretor = ${id} `
   
       let result = await prisma.$executeRawUnsafe(sql)
   

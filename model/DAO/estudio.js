@@ -39,20 +39,14 @@
 
 
 
-
-//importa a biblioteca do prisma/client
-const {PrismaClient} = require('../../generated/prisma')
- 
-
-//cria um objeto do prisma client para manipular
-const prisma = new PrismaClient()
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 
-// Torna todos os filmes do banco de dados
 const getselectAllestudios = async function(){
     try{
 
-  let sql = 'select * from tb_estudio order by id_estudio desc'
+  let sql = 'select * from tbl_estudio order by id_estudio desc'
 
   let result = await prisma.$queryRawUnsafe(sql)
   
@@ -80,7 +74,7 @@ else
 const getSelectAllByIdEstudios = async function(id){
   try{
 
-    let sql = `select * from tb_estudio where id_estudio = ${id}`
+    let sql = `select * from tbl_estudio where id_estudio = ${id}`
   
     let result = await prisma.$queryRawUnsafe(sql)
   
@@ -99,38 +93,34 @@ const getSelectAllByIdEstudios = async function(id){
 const getSelectLastIDEstudios = async function (id) {
   try{
 
-    let sql = `select id from tb_estudio order by id_estudio desc limit 1`
+    let sql = `select id_estudio from tbl_estudio order by id_estudio desc limit 1`
   
-    let result = await prisma.$queryRawUnsafe(sql)
-  
-    // Validação para identificar se retornou uma arry (vazio ou com dados)
-    if(Array.isArray(result))
-      return Number(result[0].id)
+let  result = await prisma.$queryRawUnsafe(sql)
+
+   if(result)
+    return true 
   else
-    return false
-  
-  }catch (error){
-     // console.log(error)
-      return false
+   return false
+  }catch (error){ 
+    return false 
   }
 }
-
 // insere um estudio no banco de dados  
 const setInsertEstudios = async function(estudio){
   try{
-    let sql = `INSERT INTO tb_estudio (
+    let sql = `INSERT INTO tbl_estudio (
     nome,
     pais_origem,
     ano_fundacao,
     data_encerramento,
-    sede,
-) VALUES( '${estudio.nome}',
-          '${estudio.pais_origem}',
-          '${estudio.ano_fundacao}',
-          '${estudio.data_encerramento}',
-          '${estudio.orcamento}',
-          '${estudio.trailer}',
-          '${estudio.capa}');`
+    sede
+) VALUES (
+    '${estudio.nome}',
+    '${estudio.pais_origem}',
+    '${estudio.ano_fundacao}',
+    '${estudio.data_encerramento}',
+    '${estudio.sede}'
+);`
 
    let  result = await prisma.$executeRawUnsafe(sql)
 
@@ -138,20 +128,20 @@ const setInsertEstudios = async function(estudio){
     return true 
   else
    return false
-  }catch (error){
+  }catch (error){  
     return false 
   }
 
 }
-const setUpdateFilme = async function (estudio) {
+const setUpdateEstudio = async function (estudio) {
   try{
-    let sql = `update tb_estudio set
-    nome                = '${estudio.nome}',
-    pais_origem            = '${estudio.pais_origem}',
-    ano_fundacao     = '${estudio.ano_fundacao}',
-    data_encerramento  = '${estudio.data_encerramento}',
-    sede  = '${estudio.sede}',
-   where id = ${estudio.id}`
+    let sql = `UPDATE tbl_estudio SET
+    nome = '${estudio.nome}',
+    pais_origem = '${estudio.pais_origem}',
+    ano_fundacao = '${estudio.ano_fundacao}',
+    data_encerramento = '${estudio.data_encerramento}',
+    sede = '${estudio.sede}'
+WHERE id_estudio = ${estudio.id};`
 
    let = result = await prisma.$executeRawUnsafe(sql)
 
@@ -159,7 +149,7 @@ const setUpdateFilme = async function (estudio) {
     return true 
   else
    return false
-  }catch (error){
+  }catch (error){ 
     
     return false 
   }
@@ -167,6 +157,22 @@ const setUpdateFilme = async function (estudio) {
     
 }
 
+
+const deleteUpdateEstudio = async function (id) {
+  try{
+    let sql = `delete from tbl_estudio where id_estudio = ${id}`;
+
+    let result = await prisma.$executeRawUnsafe(sql);
+
+    if(result)
+      return true;
+    else
+      return false;
+
+  }catch (error){
+    return false;
+  }
+}
 
 
 
@@ -175,7 +181,8 @@ module.exports = {
     getSelectAllByIdEstudios,
     getSelectLastIDEstudios,
     setInsertEstudios,
-    setUpdateFilme
+    setUpdateEstudio,
+    deleteUpdateEstudio
 
 
 }

@@ -69,13 +69,13 @@ const buscarDiretorID = async function (id) {
                     return MESSAGE.ERROR_NOT_FOUND
                 }
             } else {
-                return MESSAGE_INTERNAL_SERVER_MODEL
+          return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
         } else {
             return MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "atributo [id] invalido"
 
         }
-    } catch (error) {
+    } catch (error) { console.log(error)
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER
     }
 }
@@ -226,22 +226,16 @@ const validarDadosDiretores = async function (diretores) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [NOME] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (diretores.nacionalidade == undefined) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [NACIONALIDADE] invalido"
-        return MESSAGE.ERROR_REQUIRID_FILDS
-
+   
     } else if (diretores.data_nascimento == undefined || diretores.data_nascimento.length != 10 || diretores.data_nascimento == '') {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DATA LANÇAMENTO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (diretores.data_obito == '' || diretores.data_obito == null || diretores.data_obito == undefined || diretores.data_obito.length > 50) {
+    } else if (diretores.data_falecimento == '' || diretores.data_falecimento == null || diretores.data_falecimento == undefined ) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [DATA_OBITO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS
 
-    } else if (diretores.premiacoes == ''  || diretores.premiacoes == undefined || diretores.premiacoes.length > 100) {
-        MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo [PREMIAÇÔES] invalido"
-        return MESSAGE.ERROR_REQUIRID_FILDS
-
+    
     } else if (diretores.foto == undefined || diretores.foto.length > 100) {
         MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "Atributo  [FOTO] invalido"
         return MESSAGE.ERROR_REQUIRID_FILDS

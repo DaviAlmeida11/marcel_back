@@ -9,16 +9,14 @@
 
 
 //importa a biblioteca do prisma/client
-const {PrismaClient} = require('../../generated/prisma')
- 
+const { PrismaClient } = require('@prisma/client');
 
-//cria um objeto do prisma client para manipular
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const getselectAllGenerous = async function(){
     try{
 
-  let sql = 'select * from tb_genero order by id desc'
+  let sql = 'select * from tbl_genero order by id_genero desc'
 
   let result = await prisma.$queryRawUnsafe(sql)
   
@@ -44,7 +42,7 @@ else
 const getSelectAllByIdGenerous = async function (id) {
 
   try{
-    let sql = `select * from tb_genero where id=${id}`
+    let sql = `select * from tbl_genero where id_genero=${id}`
 
     let result = await prisma.$queryRawUnsafe(sql)
 
@@ -61,27 +59,24 @@ const getSelectAllByIdGenerous = async function (id) {
 
 
 
-const getSelectLastIdGenerous = async function (id) {
+const getSelectLastIdGenerous = async function () {
   try{
 
-    let sql = `select id from tb_genero order by id desc limit 1`
+    let sql = `select id_genero from tbl_genero order by id_genero desc limit 1`
   
-    let result = await prisma.$queryRawUnsafe(sql)
-  
-    // Validação para identificar se retornou uma arry (vazio ou com dados)
-    if(Array.isArray(result))
-      return Number(result[0].id)
-  else
-    return false
-  
-  }catch (error){
-     // console.log(error)
-      return false
-  }
+ let result = await prisma.$queryRawUnsafe(sql)
+        if (result) {
+            return result
+        } else {
+            return false
+        }
+    } catch (error) { console.log(error)
+        return false
+    }
 }
 const setInsertGenerous = async function(genero){
   try{
-    let sql = `INSERT INTO tb_genero (
+    let sql = `INSERT INTO tbl_genero (
     nome
 ) VALUES('${genero.nome}');`
 
@@ -91,25 +86,24 @@ const setInsertGenerous = async function(genero){
     return true 
   else
    return false
-  }catch (error){
+  }catch (error){ 
     return false 
   }
 
 }
 const setUpdateGenero = async function (genero) {
   try{
-    let sql = `update tb_genero set
-    nome                = '${genero.nome}',
-   
-   where id = ${genero.id}`
+    let sql = `UPDATE tbl_genero SET
+    nome = '${genero.nome}'
+WHERE id_genero = ${genero.id};`
 
-   let = result = await prisma.$executeRawUnsafe(sql)
+   let  result = await prisma.$executeRawUnsafe(sql)
 
    if(result)
     return true 
   else
    return false
-  }catch (error){
+  }catch (error){ console.log(error)
     
     return false 
   }
@@ -120,7 +114,7 @@ const setUpdateGenero = async function (genero) {
 
 const deletGenerous = async function(id) {
   try {
-    let sql = `delete from tb_genero where id=${id}`
+    let sql = `delete from tbl_genero where id_genero = ${id}`
 
     let result = await prisma.$executeRawUnsafe(sql)
  
@@ -128,7 +122,7 @@ const deletGenerous = async function(id) {
       return true  
       else
       return false 
-    }catch (error){
+    }catch (error){ console.log(error)
       return false
     }
 

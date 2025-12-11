@@ -38,7 +38,13 @@
   const controlerDiretores = require('./controler/diretores/controler_diretores')
 
   const controlerEstudio = require('./controler/estudio/controler_estudio')
-  
+
+  const controlerClassificacao = require('./controler/classificacao/controller_classificacao')
+
+  const controllerPais = require('./controler/pais.js/controller_pais')
+
+  const controllerIdioma = require('./controler/idioma.js/controller_idioma')
+
   // end poin para crud de filmes 
   app.get('/v1/locadoura/filme', cors(), async function(request, response){
   let filme = await controlerFilms.listarFilmes()
@@ -47,15 +53,16 @@
   response.json(filme)
   } )
   //end poin que busca filme
-  app.get('/v1/locadoura/filme/:id', cors(), async function(request, response){
-    let idFilme = request.params.id
-    let filme = await controlerFilms.buscarFilmeId(idFilme)
-    
+
+app.get('/v1/locadoura/filme/:id', cors(), async function(request, response) {
+
+    let idFilme = request.params.id;
+
+    let filme = await controlerFilms.buscarFilmeId(idFilme);
+
     response.status(filme.status_code)
-    response.json(filme)
-    } )
-  
-  
+    response.json(filme);
+});
     //adiciona um filme 
     app.post('/v1/locadoura/filme', cors(), bodyPareserJSON, async function(request, response ){
       //recebe o objeto JSON pelo body da requisição
@@ -132,7 +139,7 @@
         })
 
          //ATUALIZA UM genero
-    app.put('/v1/locadoura/genero/:id', cors(), bodyPareserJSON, async function (request, response) {
+    app.put('/v1/filme/genero/:id', cors(), bodyPareserJSON, async function (request, response) {
       let dadosBody = request.body
 
       let idGenero = request.params.id
@@ -163,7 +170,7 @@
             //andpoint atores 
 
             // vertodos os generos
-      app.get('/v1/filme/generos', cors(), async function(request, response){
+      app.get('/v1/filme/ator', cors(), async function(request, response){
         let atores = await controlerAtores.listarAtores()
 
         response.status(atores.status_code) 
@@ -171,7 +178,7 @@
       })
       
       //ver atores por id 
-      app.get('/v1/filme/atores/:id', cors(), async function (request, response) {
+      app.get('/v1/filme/ator/:id', cors(), async function (request, response) {
         let atoresId = request.params.id
 
         let atores = await controlerAtores.listarAtoresById(atoresId)
@@ -182,22 +189,22 @@
       })
 
       //adicionar ator
-      app.post('/v1/filme/atores', cors(), bodyPareserJSON, async function(request, response ){
-        //recebe o objeto JSON pelo body da requisição
-        let dadosBody = request.body
-   
-        
-        let contentType = request.headers['content-type']
-        
-        let atores = await controlerAtores.listarAtores(dadosBody, contentType)
-       
-      response.status(atores.status_code)
-      response.json(atores)
-      })
+     app.post('/v1/filme/ator', cors(), bodyPareserJSON, async function(request, response ){
+          //recebe o objeto JSON pelo body da requisição
+          let dadosBody = request.body
+     
+          
+          let contentType = request.headers['content-type']
+          
+          let ator = await controlerAtores.inserirAtores(dadosBody, contentType)
+         
+        response.status(ator.status_code)
+        response.json(ator)
+        })
 
       //preciso arrumar
 
-      app.put('/v1/locadoura/atores/:id', cors(), bodyPareserJSON, async function (request, response) {
+      app.put('/v1/filme/ator/:id', cors(), bodyPareserJSON, async function (request, response) {
         let dadosBody = request.body
   
         let idAtores =request.params.id
@@ -209,7 +216,7 @@
         response.status(atores.status_code)
         response.json(atores)
       } )
-      app.delete('/v1/filme/atores/:id', cors(),  async function(request, response) {
+      app.delete('/v1/filme/ator/:id', cors(),  async function(request, response) {
 
         let idAtores = request.params.id
         
@@ -252,7 +259,7 @@
         
         let contentType = request.headers['content-type']
         
-        let diretores = await controlerAtores.inserirAtores(dadosBody, contentType)
+        let diretores = await controlerDiretores.inserirDiretores(dadosBody, contentType)
        console.log(diretores)
       response.status(diretores.status_code)
       response.json(diretores)
@@ -313,6 +320,201 @@
       response.status(estudio.status_code)
       response.json(estudio)
       })
+
+app.put('/v1/filme/estudios/:id', cors(), bodyPareserJSON, async function (request, response) {
+        let dadosBody = request.body
+  
+        let idEstudio = request.params.id
+  
+        let contentType = request.headers['content-type']
+  
+        let estudio = await controlerEstudio.atualizarEstudio(dadosBody, idEstudio, contentType)
+  
+        response.status(estudio.status_code)
+        response.json(estudio)
+      } )
+      app.delete('/v1/filme/estudios/:id', cors(),  async function(request, response) {
+
+        let idEstudio = request.params.id
+        
+        let estudio = await controlerEstudio.excluirEstudio(idEstudio)
+        
+        response.status(estudio.status_code)
+        response.json(estudio)
+
+
+        
+      })
+
+
+    app.get('/v1/filme/classificacao', cors(), async function(request, response){
+        let classificacao = await controlerClassificacao.listarclassificacao()
+
+        response.status(classificacao.status_code)
+        response.json(classificacao)
+      })
+
+
+  app.get('/v1/filme/classificacao/:id', cors(), async function (request, response) {
+    let classificacaoId = request.params.id;
+
+    let classificacao = await controlerClassificacao.listarClassificacaoId(classificacaoId);
+
+    response.status(classificacao.status_code);
+    response.json(classificacao);
+});
+
+      //adicionar ator
+      app.post('/v1/filme/classificacao', cors(), bodyPareserJSON, async function(request, response ){
+        //recebe o objeto JSON pelo body da requisição
+        let dadosBody = request.body
+   
+        
+        let contentType = request.headers['content-type']
+        
+        let classificacao = await controlerClassificacao.inserirclassificacao(dadosBody, contentType)
+       
+      response.status(classificacao.status_code)
+      response.json(classificacao)
+      })
+      
+      app.put('/v1/filme/classificacao/:id', cors(), bodyPareserJSON, async function (request, response) {
+        let dadosBody = request.body
+  
+        let idclassificacao = request.params.id
+  
+        let contentType = request.headers['content-type']
+  
+        let classificacao = await controlerClassificacao.atualizarclassificacao(dadosBody, idclassificacao, contentType)
+   
+       response.status(classificacao.status_code)
+        response.json(classificacao)
+      } )
+      app.delete('/v1/filme/classificacao/:id', cors(),  async function(request, response) {
+
+        let idclassificacao = request.params.id
+        
+        let classificacao = await controlerClassificacao.excluirClassificacao(idclassificacao)
+          response.status(classificacao.status_code)
+        response.json(classificacao)
+
+        
+      })
+// tabela estudios
+
+
+
+      app.get('/v1/filme/pais', cors(), async function(request, response){
+        let pais = await controllerPais.listarPais()
+
+        response.status(pais.status_code) 
+        response.json(pais)
+      })
+
+// ver por id
+      app.get('/v1/filme/pais/:id', cors(), async function (request, response) {
+        let paisId = request.params.id
+
+        let pais = await controllerPais.listarPaisId(paisId)
+
+        response.status(pais.status_code)
+        response.json(pais)
+        
+      })
+
+      app.post('/v1/filme/pais', cors(), bodyPareserJSON, async function(request, response ){
+        //recebe o objeto JSON pelo body da requisição
+        let dadosBody = request.body
+      
+        let contentType = request.headers['content-type']
+        
+        let pais = await controllerPais.inserirPais(dadosBody, contentType)
+      
+      response.status(pais.status_code)
+      response.json(pais)
+      })
+
+app.put('/v1/filme/pais/:id', cors(), bodyPareserJSON, async function (request, response) {
+        let dadosBody = request.body
+  
+        let idpais = request.params.id
+  
+        let contentType = request.headers['content-type']
+  
+        let pais = await controllerPais.atualizarPais(dadosBody, idpais, contentType)
+  
+        response.status(pais.status_code)
+        response.json(pais)
+      } )
+      app.delete('/v1/filme/pais/:id', cors(),  async function(request, response) {
+
+        let idpais = request.params.id
+        
+        let pais = await controllerPais.excluirPais(idpais)
+        
+        response.status(pais.status_code)
+        response.json(pais)
+
+
+        
+      })
+
+
+
+    app.get('/v1/filme/idioma', cors(), async function(request, response){
+        let idioma = await controllerIdioma.listaridioma()
+
+        response.status(idioma.status_code)
+        response.json(idioma)
+      })
+
+
+  app.get('/v1/filme/idioma/:id', cors(), async function (request, response) {
+    let idiomaId = request.params.id;
+
+    let idioma = await controllerIdioma.listaridiomaId(idiomaId);
+
+    response.status(idioma.status_code);
+    response.json(idioma);
+});
+
+      //adicionar ator
+      app.post('/v1/filme/idioma', cors(), bodyPareserJSON, async function(request, response ){
+        //recebe o objeto JSON pelo body da requisição
+        let dadosBody = request.body
+   
+        
+        let contentType = request.headers['content-type']
+        
+        let idioma = await controllerIdioma.inseriridioma(dadosBody, contentType)
+       
+      response.status(idioma.status_code)
+      response.json(idioma)
+      })
+      
+      app.put('/v1/filme/idioma/:id', cors(), bodyPareserJSON, async function (request, response) {
+        let dadosBody = request.body
+  
+        let ididioma = request.params.id
+  
+        let contentType = request.headers['content-type']
+  
+        let idioma = await controllerIdioma.atualizaridioma(dadosBody, ididioma, contentType)
+   
+       response.status(idioma.status_code)
+        response.json(idioma)
+      } )
+      app.delete('/v1/filme/idioma/:id', cors(),  async function(request, response) {
+
+        let ididioma = request.params.id
+        
+        let idioma = await controllerIdioma.excluiridioma(ididioma)
+          response.status(idioma.status_code)
+        response.json(idioma)
+
+        
+      })
+// tabela estudios
   
   app.listen(PORT, function(){
       console.log('API está rodadndo')

@@ -25,7 +25,7 @@ const listarEstudios = async function () {
       if (result.length > 0) {
         MESSAGE.HEADER.status = MESSAGE.SUCCESS_REQUEST.status
         MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_REQUEST.status_code
-        MESSAGE.HEADER.response.filmes = result
+        MESSAGE.HEADER.response.es = result
 
 
         return MESSAGE.HEADER
@@ -64,7 +64,7 @@ const buscarEstudioId = async function (id) {
           return MESSAGE.ERROR_NOT_FOUND
         }
       } else {
-        return MESSAGE_INTERNAL_SERVER_MODEL
+        return MESSAGE.INTERNAL_SERVER_MODEL
       }
     } else {
       return MESSAGE.ERROR_REQUIRID_FILDS.invalid_field = "atributo [id] invalido"
@@ -86,11 +86,11 @@ const inserirEstudio = async function (estudio, contentType) {
 
       if (!validarDados) {
         let result = await estudioDAO.setInsertEstudios(estudio)
-       
+      
 
         if (result) {
           let lastIdEstudios = await estudioDAO.getSelectLastIDEstudios()
-        
+   
           if (lastIdEstudios) {
             estudio.id = lastIdEstudios;
             MESSAGE.HEADER.status = MESSAGE.SUCCESS_CREATED_ITEM.status
@@ -98,23 +98,123 @@ const inserirEstudio = async function (estudio, contentType) {
             MESSAGE.HEADER.message = MESSAGE.SUCCESS_CREATED_ITEM.message
             MESSAGE.HEADER.response = estudio
 
-            return MESSAGE.HEADER // 200
+          return MESSAGE.HEADER // 200
+            } else {
+              return MESSAGE.ERROR_INTERNAL_SERVER_MODEL // 500
+            }
           } else {
-            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL; // 500
+            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL // 500
           }
         } else {
-          return validarDados; // 400
+          return validarDados // 400 (caso a validação falhe)
         }
       } else {
-        return validarDados; // 400 (caso a validação falhe)
+        return MESSAGE.ERROR_CONTENT_TYPE // 415
       }
-    } else {
-      return MESSAGE.ERROR_CONTENT_TYPE; // 415 ou similar
+    } catch (error) {
+ 
+      return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER // 500
     }
-  } catch (error) { 
-    return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER;  // 500
-  } 
+  }
+
+
+
+
+const atualizarEstudio = async function (estudio, id, contentType) {
+  
+  
+      let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
+      
+      try {
+  
+          if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
+              //chama a função de validação dos adados de cadastro
+              let validarDados = await validarDadosEstudio(estudio)
+              if (!validarDados) {
+  
+                  let validarId = await buscarEstudioId(id)
+                  if (validarId.status_code == 200) {
+  
+                      estudio.id = parseInt(id)
+  
+  
+  
+                      let result = await estudioDAO.setUpdateEstudio(estudio)
+               
+                      if (result) { 
+                          MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATE_ITEM.status
+                          MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATE_ITEM.status_code
+                          MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATE_ITEM.message
+                          MESSAGE.HEADER.response = estudio
+                          return MESSAGE.HEADER
+                      } else {
+                          return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+  
+                      }
+                  } else {
+                      return validarId //retorno da função de buscar filme
+                  }
+  
+              } else {
+                  return validarDados
+              }
+          }else{
+              return MESSAGE.ERROR_CONTENT_TYPE
+          }
+  
+  
+      } catch (error) {
+         
+          return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER //500
+      }
+  
+  
+  
+  }
+
+const excluirEstudio = async function (id) {
+
+  //criação da mensagem 
+  let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
+ 
+
+
+  let validarId = await buscarEstudioId(id)
+ 
+
+  if (validarId.status_code == 200) { 
+    try {
+
+      let result = await estudioDAO.deleteUpdateEstudio(id)
+  
+     
+
+
+      if (result) {
+        MESSAGE.HEADER.status = MESSAGE.SUCCESS_DELETE.status
+        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_DELETE.status_code
+        MESSAGE.HEADER.message = MESSAGE.SUCCESS_DELETE.message
+
+        return MESSAGE.HEADER
+      } else {
+        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL   // 500
+      }
+    } catch (error) {  
+      return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER  //500
+    }
+  } else {  
+    return validarId
+    
+  }
+
+
 }
+
+
+
+
+
+
 const validarDadosEstudio = async function (estudio) {
 
 
@@ -132,7 +232,9 @@ const validarDadosEstudio = async function (estudio) {
 module.exports = {
   listarEstudios,
   buscarEstudioId,
-  inserirEstudio
+  inserirEstudio,
+  atualizarEstudio,
+  excluirEstudio
 
 
 }
