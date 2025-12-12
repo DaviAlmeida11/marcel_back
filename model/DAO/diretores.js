@@ -159,7 +159,7 @@ WHERE id_ator = ${diretores.id};`
       else
         return false
   
-    } catch (error) {console.log(error)
+    } catch (error) {
      
       return false
     }

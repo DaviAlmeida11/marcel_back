@@ -1,7 +1,7 @@
 /*********************************************************************************************
  * Objetivo: Arquivo responsável pela realização do CRUD de filme_genero no Banco de Dados MySQL
- * Data: 05/11/2025
- * Autor: Eduardo Feitosa
+ * Data: 12/11/2025
+ * Autor: Davi de Almeida
  * Versão: 2.0
  **********************************************************************************************/
 

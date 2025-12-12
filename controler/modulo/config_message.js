@@ -1,7 +1,7 @@
 /*********************************************************************************************
  * Objetivo: Arquivo responsável pela padronização de todas as mensagens da API do projeto de Filmes
  * Data: 27/11/2025
- * Autor: Eduardo Feitosa
+ * Autor: Davi de ALmeida Santos
  * Versão: 1.0
  **********************************************************************************************/
 

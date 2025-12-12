@@ -143,7 +143,7 @@ console.log(sql)
 const setDeleteFilmeIdiomaByFilm = async function(filmeId) {
     try {
         let sql = `delete from tbl_filme_idioma where id_filme = ${filmeId}`
-console.log(sql)
+
         let result = await prisma.$executeRawUnsafe(sql)
 
         if(result){

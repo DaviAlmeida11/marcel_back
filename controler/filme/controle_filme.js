@@ -162,6 +162,7 @@ const atualizarFilme = async function (idioma, id, contentType) {
     return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
   }
 }
+
 const excluirFilme = async function (id) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
