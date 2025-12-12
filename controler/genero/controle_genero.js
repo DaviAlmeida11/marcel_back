@@ -115,57 +115,49 @@ const inserirGenero = async function (genero, contentType) {
     return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER;  // 500
   } 
 }
-const atualizarGenero = async function (genero, id, contentType) {
-
-
+  const atualizarGenero = async function (genero, id, contentType) {
+    //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-    
+  
     try {
-
-        if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
-            //chama a função de validação dos adados de cadastro
-            let validarDados = await validarDadosGenero(genero)
-            if (!validarDados) {
-
-                let validarId = await buscarGeneroId(id)
-                if (validarId.status_code == 200) {
-
-                    genero.id = parseInt(id)
-
-
-
-                    let result = await generoDAO.setUpdateGenero(genero)
-             
-                    if (result) { 
-                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATE_ITEM.status
-                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATE_ITEM.status_code
-                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATE_ITEM.message
-                        MESSAGE.HEADER.response = genero
-                        return MESSAGE.HEADER
-                    } else {
-                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
-
-                    }
-                } else {
-                    return validarId //retorno da função de buscar filme
-                }
-
+      if (String(contentType).toUpperCase() === 'APPLICATION/JSON') {
+        let validarId = await buscarGeneroId(id)
+  
+        if (validarId.status_code == 200) {
+  
+          let validarDados = await validarDadosGenero(genero)
+  
+          if (!validarDados) {
+            //Adicionando o ID no JSON com os dados do ator
+            genero.id = parseInt(id)
+  
+            let result = await generoDAO.setUpdateGenero(genero)
+  
+            if (result) {
+              MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+              MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+              MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+              MESSAGE.HEADER.response = genero
+  
+              return MESSAGE.HEADER //200
             } else {
-                return validarDados
+              return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
             }
-        }else{
-            return MESSAGE.ERROR_CONTENT_TYPE
+  
+          } else {
+            return validarDados
+          }
+        } else {
+          return validarId
         }
-
-
-    } catch (error) {
-        console.log(error)
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER //500
+      } else {
+        return MESSAGE.ERROR_CONTENT_TYPE //415
+      }
+    } catch (error) { 
+      return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
-
-
-
-}
+  }
+  
 
 //esta dando errado arrumar depois
 const excluirGenero = async function (id) {

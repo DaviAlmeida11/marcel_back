@@ -120,58 +120,48 @@ const inserirFilme = async function (filme, contentType) {
   }
 
 
-const atualizarFilme = async function (filme, id, contentType) {
+const atualizarFilme = async function (idioma, id, contentType) {
+  //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
+  let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 
+  try {
+    if (String(contentType).toUpperCase() === 'APPLICATION/JSON') {
+      let validarId = await buscarFilmeId(id)
 
-    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-    
-    try {
+      if (validarId.status_code == 200) {
 
-        if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
-            //chama a função de validação dos adados de cadastro
-            let validarDados = await validarDadosFilme(filme)
-            if (!validarDados) {
+        let validarDados = await validarDadosFilme(idioma)
 
-                let validarId = await buscarFilmeId(id)
-                if (validarId.status_code == 200) {
+        if (!validarDados) {
+          //Adicionando o ID no JSON com os dados do ator
+          idioma.id = parseInt(id)
 
-                    filme.id = parseInt(id)
+          let result = await filmeDAO.setUpdateFilme(idioma)
 
+          if (result) {
+            MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+            MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+            MESSAGE.HEADER.response = idioma
 
+            return MESSAGE.HEADER //200
+          } else {
+            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+          }
 
-                    let result = await filmeDAO.setUpdateFilme(filme)
-             
-                    if (result) { 
-                        MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATE_ITEM.status
-                        MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATE_ITEM.status_code
-                        MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATE_ITEM.message
-                        MESSAGE.HEADER.response = filme
-                        return MESSAGE.HEADER
-                    } else {
-                        return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
-
-                    }
-                } else {
-                    return validarId //retorno da função de buscar filme
-                }
-
-            } else {
-                return validarDados
-            }
-        }else{
-            return MESSAGE.ERROR_CONTENT_TYPE
+        } else {
+          return validarDados
         }
-
-
-    } catch (error) {
-        
-        return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER //500
+      } else {
+        return validarId
+      }
+    } else {
+      return MESSAGE.ERROR_CONTENT_TYPE //415
     }
-
-
-
+  } catch (error) { 
+    return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
+  }
 }
-
 const excluirFilme = async function (id) {
     let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
 

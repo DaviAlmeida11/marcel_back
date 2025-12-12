@@ -50,6 +50,8 @@ const controllerIFilmeGenero = require('./controler/filme/controllerFilmeGenero'
 
 const controllerIFilmeAtor = require('./controler/filme/controller.filmeAtor')
 
+const controllerFimeIdioma = require('./controler/filme/controller_filmeIdioma')
+
 
 // end poin para crud de filmes 
 app.get('/v1/locadoura/filme', cors(), async function (request, response) {
@@ -703,6 +705,100 @@ app.delete('/v1/filme/filmeAtor/filme/:id', cors(), async function (request, res
 
 
 })
+
+
+
+
+
+
+
+app.get('/v1/filme/filmeIdioma', cors(), async function (request, response) {
+  let filmeIdioma = await controllerFimeIdioma.listarFilmeIdioma()
+
+  response.status(filmeIdioma.status_code)
+  response.json(filmeIdioma)
+})
+
+
+app.get('/v1/filme/filmeIdioma/:id', cors(), async function (request, response) {
+  let filmeIdiomaId = request.params.id;
+
+  let filmeIdioma = await controllerFimeIdioma.listarFilmeIdiomaId(filmeIdiomaId);
+
+  response.status(filmeIdioma.status_code);
+  response.json(filmeIdioma);
+});
+
+app.get('/v1/filme/filmeIdioma/filme/:id', cors(), async function (request, response) {
+  let filmeIdiomaId = request.params.id;
+
+  let filmeIdioma = await controllerFimeIdioma.listarFilmeIdFilmeIdioma(filmeIdiomaId);
+
+  response.status(filmeIdioma.status_code);
+  response.json(filmeIdioma);
+});
+
+
+app.get('/v1/filme/filmeGenero/idioma/:id', cors(), async function (request, response) {
+  let filmeIdiomaId = request.params.id;
+
+  let filmeIdioma = await controllerFimeIdioma.listarFilmeIdFilmeIdioma(filmeIdiomaId);
+
+  response.status(filmeIdioma.status_code);
+  response.json(filmeIdioma);
+});
+
+
+//adicionar ator
+app.post('/v1/filme/filmeIdioma', cors(), bodyPareserJSON, async function (request, response) {
+  //recebe o objeto JSON pelo body da requisição
+  let dadosBody = request.body
+
+
+  let contentType = request.headers['content-type']
+
+  let filmeIdioma = await controllerFimeIdioma.inserirFilmeIdioma(dadosBody, contentType)
+
+  response.status(filmeIdioma.status_code)
+  response.json(filmeIdioma)
+})
+
+app.put('/v1/filme/filmeIdioma/:id', cors(), bodyPareserJSON, async function (request, response) {
+  let dadosBody = request.body
+
+  let filmeIdiomarId = request.params.id
+
+  let contentType = request.headers['content-type']
+
+  let filmeIdioma = await controllerFimeIdioma.atualizarFilmeIdioma(dadosBody, filmeIdiomarId, contentType)
+
+  response.status(filmeIdioma.status_code)
+  response.json(filmeIdioma)
+})
+
+app.delete('/v1/filme/filmeIdioma/:id', cors(), async function (request, response) {
+
+  let filmeIdiomaId = request.params.id
+
+  let filmeIdioma = await controllerFimeIdioma.excluirFilmeIdioma(filmeIdiomaId)
+  response.status(filmeIdioma.status_code)
+  response.json(filmeIdioma)
+
+
+})
+
+app.delete('/v1/filme/filmeIdioma/filme/:id', cors(), async function (request, response) {
+
+  let filmeIdiomaId = request.params.id
+
+  let filmeIdioma = await controllerFimeIdioma.excluirFilmeIdiomaByFilmeId(filmeIdiomaId)
+  response.status(filmeIdioma.status_code)
+  response.json(filmeIdioma)
+
+
+})
+
+
 
 
 

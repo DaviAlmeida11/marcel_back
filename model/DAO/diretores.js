@@ -150,14 +150,16 @@ const setUpdateDiretores = async function (diretores) {
     is_ativo = ${diretores.is_ativo},
     foto = '${diretores.foto}'
 WHERE id_ator = ${diretores.id};`
+
+
       let result = await prisma.$executeRawUnsafe(sql)
-  
+ 
       if (result)
         return true
       else
         return false
   
-    } catch (error) {
+    } catch (error) {console.log(error)
      
       return false
     }

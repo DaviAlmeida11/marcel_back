@@ -122,57 +122,49 @@ const inserirDiretores = async function (diretores, contentType) {
       return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER // 500
     }
   }
-  const atualizarDiretores = async function (diretores, id, contentType) {
+  const atualizarDiretores = async function (diretor, id, contentType) {
+    //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
+    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
   
+    try {
+      if (String(contentType).toUpperCase() === 'APPLICATION/JSON') {
+        let validarId = await buscarDiretorID(id)
   
-      let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-      
-      try {
+        if (validarId.status_code == 200) {
   
-          if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
-              //chama a função de validação dos adados de cadastro
-              let validarDados = await validarDadosDiretores(diretores)
-              if (!validarDados) {
+          let validarDados = await validarDadosDiretores(diretor)
   
-                  let validarId = await buscarDiretorID(id)
-                  if (validarId.status_code == 200) {
+          if (!validarDados) {
+            //Adicionando o ID no JSON com os dados do ator
+            diretor.id = parseInt(id)
   
-                      diretores.id = parseInt(id)
+            let result = await diretoresDAO.setUpdateDiretores(diretor)
   
+            if (result) {
+              MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+              MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+              MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+              MESSAGE.HEADER.response = diretor
   
+              return MESSAGE.HEADER //200
+            } else {
+              return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+            }
   
-                      let result = await diretoresDAO.setUpdateDiretores(diretores)
-               
-                      if (result) { 
-                          MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATE_ITEM.status
-                          MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATE_ITEM.status_code
-                          MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATE_ITEM.message
-                          MESSAGE.HEADER.response = diretores
-                          return MESSAGE.HEADER
-                      } else {
-                          return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
-  
-                      }
-                  } else {
-                      return validarId //retorno da função de buscar filme
-                  }
-  
-              } else {
-                  return validarDados
-              }
-          }else{
-              return MESSAGE.ERROR_CONTENT_TYPE
+          } else {
+            return validarDados
           }
-  
-  
-      } catch (error) {
-          console.log(error)
-          return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER //500
+        } else {
+          return validarId
+        }
+      } else {
+        return MESSAGE.ERROR_CONTENT_TYPE //415
       }
-  
-  
-  
+    } catch (error) { 
+      return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
+    }
   }
+  
 
 const excluirDiretor = async function (id) {
 

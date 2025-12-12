@@ -125,50 +125,47 @@ const inserirclassificacao = async function (classificacao, contentType) {
     }
   }
   const atualizarclassificacao = async function (classificacao, id, contentType) {
+    //Realizando uma cópia do objeto MESSAGE_DEFAULT, permitindo que as alterações desta função não interfiram em outras funções
+    let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
   
+    try {
+      if (String(contentType).toUpperCase() === 'APPLICATION/JSON') {
+        let validarId = await listarClassificacaoId(id)
   
-      let MESSAGE = JSON.parse(JSON.stringify(MESSAGE_DEFAULT))
-      
-      try {
+        if (validarId.status_code == 200) {
   
-          if (String(contentType).toUpperCase() == 'APPLICATION/JSON') {
-              //chama a função de validação dos adados de cadastro
-              let validarDados = await validarDadosclassificacao(classificacao)
-              if (!validarDados) {
+          let validarDados = await validarDadosclassificacao(classificacao)
   
-                  let validarId = await buscarclassificacaoID(id)
-                  if (validarId.status_code == 200) {
+          if (!validarDados) {
+            //Adicionando o ID no JSON com os dados do ator
+            classificacao.id = parseInt(id)
   
-                      classificacao.id = parseInt(id)
+            let result = await classificacaoDAO.setUpdateclassificacao(classificacao)
   
+            if (result) {
+              MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
+              MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
+              MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
+              MESSAGE.HEADER.response = classificacao
   
+              return MESSAGE.HEADER //200
+            } else {
+              return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+            }
   
-                      let result = await classificacaoDAO.setUpdateclassificacao(classificacao)
-                 if (result) {
-            MESSAGE.HEADER.status = MESSAGE.SUCCESS_UPDATED_ITEM.status
-            MESSAGE.HEADER.status_code = MESSAGE.SUCCESS_UPDATED_ITEM.status_code
-            MESSAGE.HEADER.message = MESSAGE.SUCCESS_UPDATED_ITEM.message
-            MESSAGE.HEADER.response = classificacao
-
-            return MESSAGE.HEADER //200
           } else {
-            return MESSAGE.ERROR_INTERNAL_SERVER_MODEL //500
+            return validarDados
           }
-
         } else {
-          return validarDados
+          return validarId
         }
       } else {
-        return validarId
+        return MESSAGE.ERROR_CONTENT_TYPE //415
       }
-    } else {
-      return MESSAGE.ERROR_CONTENT_TYPE //415
+    } catch (error) { 
+      return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
     }
-  } catch (error) { 
-    return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
   }
-}
-
 
 
 const excluirClassificacao = async function (id) {
