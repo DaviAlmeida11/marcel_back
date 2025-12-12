@@ -164,7 +164,7 @@ const inserirclassificacao = async function (classificacao, contentType) {
     } else {
       return MESSAGE.ERROR_CONTENT_TYPE //415
     }
-  } catch (error) { console.log(error)
+  } catch (error) { 
     return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLLER //500
   }
 }

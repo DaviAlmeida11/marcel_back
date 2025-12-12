@@ -100,7 +100,7 @@ const setupdatepais = async function (pais) {
         } else {
             return false
         }
-    } catch (error) { console.log(error)
+    } catch (error) { 
 
         return false
     }

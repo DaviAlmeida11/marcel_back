@@ -164,7 +164,7 @@ const atualizarFilme = async function (filme, id, contentType) {
 
 
     } catch (error) {
-        console.log(error)
+        
         return MESSAGE.ERROR_INTERNAL_SERVER_CONTROLER //500
     }
 
